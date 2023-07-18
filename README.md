@@ -46,6 +46,7 @@ Note  The command console can use a different php.ini file
       Please check that both the console and the web server
       are using the same PHP version and configuration.
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 3.- Start synfony server symfony
 
