@@ -2,6 +2,9 @@
 
 namespace App\Controller\Api;
 
+
+
+
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use App\Entity\Player;
@@ -11,6 +14,7 @@ use App\Repository\PlayerRepository;
 use App\Form\Type\PlayerFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,6 +24,7 @@ use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+
 
 class PlayersController extends AbstractController
 {
@@ -107,22 +112,22 @@ class PlayersController extends AbstractController
                 try {
                     //Config params and data to send Email
 
-                    $email = (new Email())
-                        ->from("llt@test.com")
-                        ->to($trainer_email)
-                        //->cc('cc@example.com')
-                        //->bcc('bcc@example.com')
-                        //->replyTo('fabien@example.com')
-                        //->priority(Email::PRIORITY_HIGH)
-                        ->subject(
-                            "Your Account Has Been Created - LaLiga TECH!"
-                        )
-                        ->html(
-                            '<h5 class="card-title">Welcome ' .
-                                $trainer_name .
-                                "!</h5>"
-                        );
-                    $mailer->send($email);
+                    // $email = (new Email())
+                    //     ->from("llt@test.com")
+                    //     ->to($player_email)
+                    //     //->cc('cc@example.com')
+                    //     //->bcc('bcc@example.com')
+                    //     //->replyTo('fabien@example.com')
+                    //     //->priority(Email::PRIORITY_HIGH)
+                    //     ->subject(
+                    //         "Your Account Has Been Created - LaLiga TECH!"
+                    //     )
+                    //     ->html(
+                    //         '<h5 class="card-title">Welcome ' .
+                    //             $player_name .
+                    //             "!</h5>"
+                    //     );
+                    //     $mailer->send($email);
 
                     //Start to manage object
                     $em->persist($player);
