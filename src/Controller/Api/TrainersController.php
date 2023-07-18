@@ -29,7 +29,7 @@ class TrainersController extends AbstractController
      *
      *
      */
-
+    //Show all trainers
     public function index(
         Request $request,
         EntityManagerInterface $em
@@ -40,8 +40,6 @@ class TrainersController extends AbstractController
         ]);
     }
 
- 
- 
     /**
      * @Rest\Post(path="create_trainer")
      *
@@ -53,29 +51,52 @@ class TrainersController extends AbstractController
         EntityManagerInterface $em
     ): JsonResponse {
         $trainer = new Trainer();
+
+        //Getting params
         $trainer_salary = $request->get("salary");
         $trainer_id_club = $request->get("id_club");
         $trainer_name = $request->get("name");
         $trainer_email = $request->get("email");
+
+        //Creating form type to manage data fields
         $form = $this->createForm(TrainerFormType::class, $trainer);
         $form->handleRequest($request);
-        $budget = $em->getRepository(Club::class)
-                                ->getBudgetByClub($trainer_salary, $trainer_id_club);
+
+        //Getting the budget by club "id_club"
+        $budget = $em
+            ->getRepository(Club::class)
+            ->getBudgetByClub($trainer_salary, $trainer_id_club);
+
+        //Validation form to create the new Trainer
         if ($form->isSubmitted() && $form->isValid()) {
+            //Budget Validation
             if ($budget > $trainer_salary) {
+                //Control and detect exceptions
                 try {
+                    //Config params and data to send Email
                     $email = (new Email())
-                    ->from('llt@test.com')
-                    ->to($trainer_email)
-                    //->cc('cc@example.com')
-                    //->bcc('bcc@example.com')
-                    //->replyTo('fabien@example.com')
-                    //->priority(Email::PRIORITY_HIGH)
-                    ->subject('Your Account Has Been Created - LaLiga TECH!')
-                    ->html('<h5 class="card-title">Welcome ' .$trainer_name.'!</h5>');
-                $mailer->send($email);
-                $em->persist($trainer);
-                $em->flush();
+                        ->from("llt@test.com")
+                        ->to($trainer_email)
+                        //->cc('cc@example.com')
+                        //->bcc('bcc@example.com')
+                        //->replyTo('fabien@example.com')
+                        //->priority(Email::PRIORITY_HIGH)
+                        ->subject(
+                            "Your Account Has Been Created - LaLiga TECH!"
+                        )
+                        ->html(
+                            '<h5 class="card-title">Welcome ' .
+                                $trainer_name .
+                                "!</h5>"
+                        );
+                    $mailer->send($email);
+
+                    //Start to manage object
+                    $em->persist($trainer);
+                    //Save object to DB
+                    $em->flush();
+
+                    //Returnning json response with status
                     return $this->json([
                         "code" => 200,
                         "message" => "Trainer successfully created",
@@ -83,6 +104,7 @@ class TrainersController extends AbstractController
                         "data" => $trainer,
                     ]);
                 } catch (\Exception $e) {
+                    //Returnnig exception with json response message
                     return $this->json([
                         "code" => 400,
                         "message" => "Validation Failed",
@@ -94,9 +116,7 @@ class TrainersController extends AbstractController
                     "code" => 400,
                     "message" => "Validation Failed",
                     "errors" =>
-                        'The club no longer has a budget ($' .
-                        $budget .
-                        ")",
+                        'The club no longer has a budget ($' . $budget . ")",
                 ]);
             }
         }
@@ -144,7 +164,4 @@ class TrainersController extends AbstractController
             "data" => $form,
         ]);
     }
-
-
-  
 }

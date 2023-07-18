@@ -21,7 +21,6 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
-
 class PlayersController extends AbstractController
 {
     /**
@@ -29,7 +28,7 @@ class PlayersController extends AbstractController
      *
      *
      */
-
+    //Show all players
     public function index(
         Request $request,
         EntityManagerInterface $em
@@ -45,16 +44,25 @@ class PlayersController extends AbstractController
      *
      *
      */
+
+    //List players from a club with the possibility of filtering by one of the properties (for example name) and with pagination
     public function findPlayerClub(
         Request $request,
         EntityManagerInterface $em
     ): JsonResponse {
+        //New Player object
         $player = new Player();
+
+        //Getting params
         $player_club = $request->get("club");
         $player_name = $request->get("player");
         $pag = $request->get("pag");
+
+        //Creating form type to manage data fields
         $form = $this->createForm(PlayerFormType::class, $player);
         $form->handleRequest($request);
+
+        //Getting Club Players
         $players_club = $em
             ->getRepository(Player::class)
             ->findByPlayerClub($player_club, $player_name, $pag);
@@ -76,25 +84,58 @@ class PlayersController extends AbstractController
         EntityManagerInterface $em
     ): JsonResponse {
         $player = new Player();
+
+        //Getting params
         $player_id_club = $request->get("id_club");
         $player_name = $request->get("name");
         $player_salary = $request->get("salary");
         $player_email = $request->get("email");
+
+        //Creating form type to manage data fields
         $form = $this->createForm(PlayerFormType::class, $player);
         $form->handleRequest($request);
-        $budget = $em->getRepository(Club::class)
-        ->getBudgetByClub($player_salary, $player_id_club);
+
+        //Getting the budget by club "id_club"
+        $budget = $em
+            ->getRepository(Club::class)
+            ->getBudgetByClub($player_salary, $player_id_club);
+
+        //Validation form to create the new Player
         if ($form->isSubmitted() && $form->isValid()) {
             if ($budget > $player_salary) {
+                //Control and detect exceptions
                 try {
+                    //Config params and data to send Email
+
+                    $email = (new Email())
+                        ->from("llt@test.com")
+                        ->to($trainer_email)
+                        //->cc('cc@example.com')
+                        //->bcc('bcc@example.com')
+                        //->replyTo('fabien@example.com')
+                        //->priority(Email::PRIORITY_HIGH)
+                        ->subject(
+                            "Your Account Has Been Created - LaLiga TECH!"
+                        )
+                        ->html(
+                            '<h5 class="card-title">Welcome ' .
+                                $trainer_name .
+                                "!</h5>"
+                        );
+                    $mailer->send($email);
+
+                    //Start to manage object
                     $em->persist($player);
+                    //Save object to DB
                     $em->flush();
+                    //Returnning json response with status
                     return $this->json([
                         "code" => 200,
                         "message" => "Player successfully created",
                         "errors" => "",
                         "data" => $player,
                     ]);
+                    //Returnnig exception with json response message
                 } catch (\Exception $e) {
                     return $this->json([
                         "code" => 400,
