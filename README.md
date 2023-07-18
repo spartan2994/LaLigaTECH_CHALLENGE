@@ -19,6 +19,10 @@ More information: https://symfony.com/download
 
 2.- Go to project (LaLiga_Tech_Test) and check the Symfony requirements 
 
+CLONE GITHUB REPOSITORY
+- (git clone https://github.com/spartan2994/LaLigaTECH_CHALLENGE.git)
+  
+
 Symfony Requirements
 - symfony check:requirements
 
