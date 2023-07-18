@@ -1,0 +1,12 @@
+App\Entity\Club:
+  atributes:
+    id:
+      groups: ['player']
+    id_club:
+      groups: ['player']
+    name:
+      groups: ['player']
+    salary:
+      groups: ['player']
+    email:
+      groups: ['player']

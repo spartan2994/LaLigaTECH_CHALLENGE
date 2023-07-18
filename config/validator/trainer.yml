@@ -1,0 +1,20 @@
+App\Entity\Trainer:
+  properties:
+    name:
+      - NotBlank: ~ 
+      - Length: 
+          min: 10
+          max: 100
+          minMessage: 'Your name must be at least {{ limit }} characters long'
+          maxMessage: 'Your name cannot be longer than {{ limit }} characters'
+
+    salary:
+      - GreaterThan: 0
+    email:
+      - Email:
+          message: The email "{{ value }}" is not a valid email.
+
+     
+        
+      
+     

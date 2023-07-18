@@ -1,0 +1,4 @@
+api_clubs:
+  resource: ../../src/Controller/Api
+  type: annotation
+  prefix: /api
