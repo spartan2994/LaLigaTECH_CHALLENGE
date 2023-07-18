@@ -53,8 +53,12 @@ Start Server
 
 - symfony server:start
 
-4.- Import SQL Dump File to Mysql and check variable connection 
+4.- Import SQL Dump File (LLT_2023_07_18,sql) to Mysql and check variable connection 
 
 Check variable connection .env file
 -  DATABASE_URL="mysql://root:root@127.0.0.1:3306/LLT?serverVersion=5.7.39&charset=utf8mb4"
 
+5.- Test Api´s with Postman Collection file (LLT.postman_collection.json)
+
+Import Postman Collection
+- File->Import, and upload file LLT.postman_collection.json
