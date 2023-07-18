@@ -48,7 +48,7 @@ Note  The command console can use a different php.ini file
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-3.- Start synfony server symfony
+3.- Start symfony server symfony
 
 Start Server 
 
