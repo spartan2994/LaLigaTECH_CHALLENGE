@@ -77,6 +77,6 @@ class ClubRepository extends ServiceEntityRepository
             return 0;
         }
 
-        return false;
+        return 0;
     }
 }
