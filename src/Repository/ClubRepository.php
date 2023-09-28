@@ -27,9 +27,9 @@ class ClubRepository extends ServiceEntityRepository
     {
        
 
-        $club = $this->createQueryBuilder("c")
-                ->andWhere("c.name = :club_name")
-                ->setParameter("club_name", $club_name)
+        $club = $this->createQueryBuilder('c')
+                ->andWhere('c.name = :club_name')
+                ->setParameter('club_name', $club_name)
                 ->getQuery()
                 ->getResult();
 

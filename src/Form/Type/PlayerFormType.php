@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Form\Model\PlayerDto;
 
 class PlayerFormType extends AbstractType
 {
@@ -27,7 +28,7 @@ class PlayerFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Player::class,
+            'data_class' => PlayerDto::class,
         ]);
     }
 

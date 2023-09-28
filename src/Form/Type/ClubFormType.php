@@ -1,7 +1,11 @@
 <?php
 namespace App\Form\Type;
 
-use App\Entity\Club;
+
+use App\Form\Model\ClubDto;
+use Doctrine\DBAL\Types\StringType;
+use Doctrine\DBAL\Types\TextType as TypesTextType;
+use Stringable;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -24,7 +28,7 @@ class ClubFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Club::class,
+            'data_class' => ClubDto::class,
         ]);
     }
 

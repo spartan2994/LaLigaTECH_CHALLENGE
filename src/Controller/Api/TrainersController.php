@@ -2,25 +2,19 @@
 
 namespace App\Controller\Api;
 
-use FOS\RestBundle\Controller\AbstractFOSRestController;
+
 use FOS\RestBundle\Controller\Annotations as Rest;
-use App\Entity\Trainer;
-use App\Entity\Player;
-use App\Entity\Club;
+use App\Form\Model\TrainerDto;
 use App\Repository\TrainerRepository;
 use App\Form\Type\TrainerFormType;
+use App\Service\TrainerManager;
+use App\Service\MailerService;
+use App\Service\PlayerManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 
 class TrainersController extends AbstractController
 {
@@ -30,11 +24,9 @@ class TrainersController extends AbstractController
      *
      */
     //Show all trainers
-    public function index(
-        Request $request,
-        EntityManagerInterface $em
-    ): JsonResponse {
-        $Trainers = $em->getRepository(Trainer::class)->findAll();
+    public function index(TrainerManager $trainerManager): JsonResponse
+    {
+        $Trainers = $trainerManager->findAll();
         return $this->json([
             "data" => $Trainers,
         ]);
@@ -48,67 +40,40 @@ class TrainersController extends AbstractController
     public function createTrainer(
         MailerInterface $mailer,
         Request $request,
-        EntityManagerInterface $em
+        TrainerManager $trainerManager,
+        PlayerManager $playerManager,
+        MailerService $mailerService
     ): JsonResponse {
-        $trainer = new Trainer();
-
-        //Getting params
-        $trainer_salary = $request->get("salary");
-        $trainer_id_club = $request->get("id_club");
-        $trainer_name = $request->get("name");
-        $trainer_email = $request->get("email");
-
+        $trainerDto = new TrainerDto();
         //Creating form type to manage data fields
-        $form = $this->createForm(TrainerFormType::class, $trainer);
+        $form = $this->createForm(TrainerFormType::class, $trainerDto);
         $form->handleRequest($request);
 
         //Getting the budget by club "id_club"
-        $budget = $em
-            ->getRepository(Club::class)
-            ->getBudgetByClub($trainer_salary, $trainer_id_club);
+        $budget = $playerManager->getBudgetByClub(
+            $trainerDto->salary,
+            $trainerDto->id_club
+        );
 
         //Validation form to create the new Trainer
         if ($form->isSubmitted() && $form->isValid()) {
             //Budget Validation
-            if ($budget > $trainer_salary) {
+            if ($budget > $trainerDto->salary) {
                 //Control and detect exceptions
-                try {
-                    //Config params and data to send Email
-                    $email = (new Email())
-                        ->from("llt@test.com")
-                        ->to($trainer_email)
-                        //->cc('cc@example.com')
-                        //->bcc('bcc@example.com')
-                        //->replyTo('fabien@example.com')
-                        //->priority(Email::PRIORITY_HIGH)
-                        ->subject(
-                            "Your Account Has Been Created - LaLiga TECH!"
-                        )
-                        ->html(
-                            '<h5 class="card-title">Welcome ' .
-                                $trainer_name .
-                                "!</h5>"
-                        );
-                    $mailer->send($email);
+                $mailer_response = $mailerService->sendMail($trainerDto);
 
-                    //Start to manage object
-                    $em->persist($trainer);
-                    //Save object to DB
-                    $em->flush();
-
-                    //Returnning json response with status
+                if ($mailer_response == true) {
                     return $this->json([
                         "code" => 200,
                         "message" => "Trainer successfully created",
                         "errors" => "",
-                        "data" => $trainer,
+                        "data" => $trainerDto,
                     ]);
-                } catch (\Exception $e) {
-                    //Returnnig exception with json response message
+                } else {
                     return $this->json([
                         "code" => 400,
                         "message" => "Validation Failed",
-                        "errors" => $e->getMessage(),
+                        "errors" => $mailer_response->getMessage(),
                     ]);
                 }
             } else {
@@ -133,18 +98,14 @@ class TrainersController extends AbstractController
      */
     public function deleteTrainer(
         Request $request,
-        EntityManagerInterface $em
+        TrainerManager $trainerManager
     ): JsonResponse {
-        $trainer = new Trainer();
         $trainer_id = $request->get("id");
-        $form = $this->createForm(TrainerFormType::class, $trainer);
-        $form->handleRequest($request);
-        $trainer = $em->getRepository(Trainer::class)->find($trainer_id);
+        $trainer = $trainerManager->find($trainer_id);
 
         if ($trainer) {
             try {
-                $em->remove($trainer);
-                $em->flush();
+                $trainerManager->delete($trainer);
                 return $this->json([
                     "code" => 200,
                     "message" => "Trainer successfully deleted",
@@ -155,13 +116,9 @@ class TrainersController extends AbstractController
                 return $this->json([
                     "code" => 400,
                     "message" => "Validation Failed",
-                    "errors" => $e->getMessage(),
+                    "errors" => $th->getMessage(),
                 ]);
             }
         }
-
-        return $this->json([
-            "data" => $form,
-        ]);
     }
 }
