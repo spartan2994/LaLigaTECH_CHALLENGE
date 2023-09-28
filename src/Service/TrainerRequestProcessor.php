@@ -14,18 +14,18 @@ class TrainerRequestProcessor extends AbstractController
 {
     private $trainerManager;
     private $playerManager;
-    private $mailerService;
+    private $notifyService;
     private $httpRequestsConstants;
 
     public function __construct(
         TrainerManager $trainerManager,
         PlayerManager $playerManager,
-        MailerService $mailerService,
+        NotifyService $notifyService,
         HttpRequestsConstants $httpRequestsConstants
     ) {
         $this->trainerManager = $trainerManager;
         $this->playerManager = $playerManager;
-        $this->mailerService = $mailerService;
+        $this->notifyService = $notifyService;
         $this->httpRequestsConstants = $httpRequestsConstants;
     }
 
@@ -50,7 +50,7 @@ class TrainerRequestProcessor extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($budget > $trainerDto->salary) {
-                $mailer_response = $this->mailerService->sendMail($trainerDto);
+                $mailer_response = $this->notifyService->sendMail($trainerDto);
 
                 if ($mailer_response == true) {
                     return $this->json([

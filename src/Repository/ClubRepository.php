@@ -25,16 +25,11 @@ class ClubRepository extends ServiceEntityRepository
 
     public function findByClub($club_name)
     {
-
-
         $club = $this->createQueryBuilder('c')
             ->andWhere('c.name = :club_name')
             ->setParameter('club_name', $club_name)
             ->getQuery()
             ->getResult();
-
-
-
         return $club;
     }
 
@@ -69,13 +64,10 @@ class ClubRepository extends ServiceEntityRepository
                 ->getResult()[0]["budget"];
 
             $budget = $budget_club - ($salary_trainers + $salary_players);
-
-
             return $budget;
         } elseif (!$id_club) {
             return 0;
         }
-
         return 0;
     }
 }

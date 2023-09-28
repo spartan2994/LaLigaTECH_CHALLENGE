@@ -30,7 +30,7 @@ class TrainerRepository extends ServiceEntityRepository
             ->andWhere("t.id_club = :id_club")
             ->setParameter("id_club", $id_club)
             ->getQuery();
-
+            
         return $response->getResult();
     }
 }
