@@ -8,7 +8,7 @@ use App\Repository\PlayerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 
-class PlayerManager 
+class PlayerManager
 {
     private $em;
     private $playerRepository;
@@ -17,7 +17,6 @@ class PlayerManager
     {
         $this->em = $em;
         $this->playerRepository = $playerRepository;
-
     }
 
     public function create(): Player
@@ -33,14 +32,15 @@ class PlayerManager
         return $player;
     }
 
-    public function findAll(){
+    public function findAll()
+    {
         $players = $this->em->getRepository(Player::class)->findAll();
         return $players;
     }
 
     public function findByPlayerClub($id_club, $name, $pag)
     {
-        $players_club = $this->em->getRepository(Player::class)->findByPlayerClub($id_club ,$name, $pag);
+        $players_club = $this->em->getRepository(Player::class)->findByPlayerClub($id_club, $name, $pag);
         return $players_club;
     }
 
@@ -51,16 +51,15 @@ class PlayerManager
         return $budget;
     }
 
-    public function find($player_id){
+    public function find($player_id)
+    {
         $player = $this->em->getRepository(Player::class)->find($player_id);
         return $player;
     }
 
-    public function delete($player_id){
+    public function delete($player_id)
+    {
         $this->em->remove($player_id);
         $this->em->flush();
     }
-
-
-   
 }

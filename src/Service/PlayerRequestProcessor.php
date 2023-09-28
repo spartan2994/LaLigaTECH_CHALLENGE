@@ -90,7 +90,7 @@ class PlayerRequestProcessor extends AbstractController
                     "code" => $this->httpRequestsConstants::HTTP_BAD_REQUEST,
                     "message" => "Validation Failed",
                     "errors" =>
-                        'The club no longer has a budget ($' . $budget . ")",
+                    'The club no longer has a budget ($' . $budget . ")",
                 ]);
             }
         }

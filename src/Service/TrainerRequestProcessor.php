@@ -71,7 +71,7 @@ class TrainerRequestProcessor extends AbstractController
                     "code" => 400,
                     "message" => "Validation Failed",
                     "errors" =>
-                        'The club no longer has a budget ($' . $budget . ")",
+                    'The club no longer has a budget ($' . $budget . ")",
                 ]);
             }
         }

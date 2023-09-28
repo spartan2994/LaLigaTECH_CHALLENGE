@@ -7,27 +7,33 @@ use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use PHPUnit\Framework\Assert;
 
-class ClubRequestProcessorUnitTest extends WebTestCase
+class TrainerRequestProcessorUnitTest extends WebTestCase
 {
     private static $client = null;
     private static $METHOD_POST = null;
+    private static $METHOD_GET = null;
+    private static $METHOD_DELETE = null;
 
     public function setUp(): void
     {
         self::$client = HttpClient::create();
         self::$METHOD_POST = "POST";
+        self::$METHOD_GET = "GET";
+        self::$METHOD_DELETE = "DELETE";
     }
 
-    public function testCreateClubRequestTest(): void
+    public function testCreatePlayerRequestTest(): void
     {
         $payload = [
-            "name" => "Real Madrid",
-            "budget" => 70000,
+            "id_club" => 2,
+            "name" => "Javier Aguirre",
+            "salary" => 12000,
+            "email" => "javier_aguirre@llt.com",
         ];
 
         $response = self::$client->request(
             self::$METHOD_POST,
-            "http://127.0.0.1:8000/create_club",
+            'http://127.0.0.1:8000/create_trainer',
             [],
             [],
             [],
@@ -38,39 +44,26 @@ class ClubRequestProcessorUnitTest extends WebTestCase
         $responseDta = json_decode($response->getContent(), true);
     }
 
-    public function testCreateClubDuplicatedRequest(): void
+    public function testGetTrainersRequestTest(): void
     {
-        $payload = [
-            "name" => "Barca 5",
-            "budget" => 24000,
-        ];
-
         $response = self::$client->request(
-            self::$METHOD_POST,
-            "http://127.0.0.1:8000/create_club",
-            [],
-            [],
-            [],
-            json_encode($payload)
+            self::$METHOD_GET,
+            'http://127.0.0.1:8000/players'
         );
 
-        self::assertContains(
-            200,
-            $response->getContent(),
-            "testArray doesn't contains duplicated as value"
-        );
+        self::assertEquals(JsonResponse::HTTP_OK, $response->getStatusCode());
+        $responseDta = json_decode($response->getContent(), true);
     }
 
-    public function testUpdateClubBudgetRequestTest(): void
+    public function testDeleteTrainerRequestTest(): void
     {
         $payload = [
-            "id" => 3,
-            "budget" => 70000,
+            "id" => 4,
         ];
 
         $response = self::$client->request(
-            self::$METHOD_POST,
-            "http://127.0.0.1:8000/set_budget_club",
+            self::$METHOD_DELETE,
+            'http://127.0.0.1:8000/delete_trainer',
             [],
             [],
             [],
