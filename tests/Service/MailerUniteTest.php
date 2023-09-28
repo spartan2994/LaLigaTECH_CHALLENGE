@@ -4,7 +4,6 @@ namespace App\Service;
 
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Bundle\FrameworkBundle;
 use App\Form\Model\TrainerDto;
 
 
