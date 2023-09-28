@@ -33,5 +33,4 @@ class TrainerRepository extends ServiceEntityRepository
 
         return $response->getResult();
     }
-
 }

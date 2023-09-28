@@ -7,7 +7,7 @@ use App\Repository\TrainerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 
-class TrainerManager 
+class TrainerManager
 {
     private $em;
     private $trainerRepository;
@@ -16,7 +16,6 @@ class TrainerManager
     {
         $this->em = $em;
         $this->trainerRepository = $trainerRepository;
-
     }
     public function save(Trainer $trainer): Trainer
     {
@@ -39,14 +38,15 @@ class TrainerManager
         return $trainers;
     }
 
-    public function delete($trainer_id){
+    public function delete($trainer_id)
+    {
         $this->em->remove($trainer_id);
         $this->em->flush();
     }
 
-    public function find($trainer_id){
+    public function find($trainer_id)
+    {
         $trainer = $this->em->getRepository(Trainer::class)->find($trainer_id);
         return $trainer;
     }
-
 }

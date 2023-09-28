@@ -23,7 +23,7 @@ class PlayerRepository extends ServiceEntityRepository
     }
 
     public function getSalaryByPlayer($id_club = 0)
-    {   
+    {
 
         $response = $this->createQueryBuilder("p")
             ->select("sum(p.salary) salary")
