@@ -1,4 +1,4 @@
-App\Entity\Club:
+App\Form\Model\ClubDto:
   properties:
     name:
       - NotBlank: ~ 

@@ -2,15 +2,13 @@
 
 namespace App\Controller\Api;
 
-
-
-
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use App\Entity\Player;
+use App\Form\Model\PlayerDto;
 use App\Entity\Trainer;
 use App\Entity\Club;
-use App\Repository\PlayerRepository;
+use App\Service\PlayerManager;
 use App\Form\Type\PlayerFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,7 +23,6 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
-
 class PlayersController extends AbstractController
 {
     /**
@@ -34,11 +31,9 @@ class PlayersController extends AbstractController
      *
      */
     //Show all players
-    public function index(
-        Request $request,
-        EntityManagerInterface $em
-    ): JsonResponse {
-        $Players = $em->getRepository(Player::class)->findAll();
+    public function index(PlayerManager $playerManager): JsonResponse
+    {
+        $Players = $playerManager->findAll();
         return $this->json([
             "data" => $Players,
         ]);
@@ -52,25 +47,15 @@ class PlayersController extends AbstractController
 
     //List players from a club with the possibility of filtering by one of the properties (for example name) and with pagination
     public function findPlayerClub(
-        Request $request,
-        EntityManagerInterface $em
+        PlayerManager $playerManager,
+        Request $request
     ): JsonResponse {
-        //New Player object
-        $player = new Player();
-
         //Getting params
-        $player_club = $request->get("club");
-        $player_name = $request->get("player");
         $pag = $request->get("pag");
-
-        //Creating form type to manage data fields
-        $form = $this->createForm(PlayerFormType::class, $player);
-        $form->handleRequest($request);
-
+        $id_club = $request->get("id_club");
+        $name = $request->get("player");
         //Getting Club Players
-        $players_club = $em
-            ->getRepository(Player::class)
-            ->findByPlayerClub($player_club, $player_name, $pag);
+        $players_club = $playerManager->findByPlayerClub($id_club, $name, $pag);
         return $this->json([
             "code" => 200,
             "message" => "",
@@ -86,53 +71,32 @@ class PlayersController extends AbstractController
      */
     public function createPlayer(
         Request $request,
-        EntityManagerInterface $em
+        PlayerManager $playerManager
     ): JsonResponse {
-        $player = new Player();
-
-        //Getting params
-        $player_id_club = $request->get("id_club");
-        $player_name = $request->get("name");
-        $player_salary = $request->get("salary");
-        $player_email = $request->get("email");
+        $playerDto = new PlayerDto();
 
         //Creating form type to manage data fields
-        $form = $this->createForm(PlayerFormType::class, $player);
+        $form = $this->createForm(PlayerFormType::class, $playerDto);
         $form->handleRequest($request);
 
         //Getting the budget by club "id_club"
-        $budget = $em
-            ->getRepository(Club::class)
-            ->getBudgetByClub($player_salary, $player_id_club);
+        $budget = $playerManager->getBudgetByClub(
+            $playerDto->salary,
+            $playerDto->id_club
+        );
 
         //Validation form to create the new Player
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($budget > $player_salary) {
+            if ($budget > $playerDto->salary) {
                 //Control and detect exceptions
                 try {
-                    //Config params and data to send Email
-
-                    // $email = (new Email())
-                    //     ->from("llt@test.com")
-                    //     ->to($player_email)
-                    //     //->cc('cc@example.com')
-                    //     //->bcc('bcc@example.com')
-                    //     //->replyTo('fabien@example.com')
-                    //     //->priority(Email::PRIORITY_HIGH)
-                    //     ->subject(
-                    //         "Your Account Has Been Created - LaLiga TECH!"
-                    //     )
-                    //     ->html(
-                    //         '<h5 class="card-title">Welcome ' .
-                    //             $player_name .
-                    //             "!</h5>"
-                    //     );
-                    //     $mailer->send($email);
-
-                    //Start to manage object
-                    $em->persist($player);
+                    $player = $playerManager->create();
+                    $player->setIdClub($playerDto->id_club);
+                    $player->setName($playerDto->name);
+                    $player->setSalary($playerDto->salary);
+                    $player->setEmail($playerDto->email);
                     //Save object to DB
-                    $em->flush();
+                    $playerManager->save($player);
                     //Returnning json response with status
                     return $this->json([
                         "code" => 200,
@@ -170,18 +134,14 @@ class PlayersController extends AbstractController
      */
     public function deletePlayer(
         Request $request,
-        EntityManagerInterface $em
+        PlayerManager $playerManager
     ): JsonResponse {
-        $player = new Player();
         $player_id = $request->get("id");
-        $form = $this->createForm(PlayerFormType::class, $player);
-        $form->handleRequest($request);
-        $player = $em->getRepository(Player::class)->find($player_id);
+        $player = $playerManager->find($player_id);
 
         if ($player) {
             try {
-                $em->remove($player);
-                $em->flush();
+                $playerManager->delete($player);
                 return $this->json([
                     "code" => 200,
                     "message" => "Player successfully deleted",
@@ -192,13 +152,9 @@ class PlayersController extends AbstractController
                 return $this->json([
                     "code" => 400,
                     "message" => "Validation Failed",
-                    "errors" => $e->getMessage(),
+                    "errors" => $th->getMessage(),
                 ]);
             }
         }
-
-        return $this->json([
-            "data" => $form,
-        ]);
     }
 }

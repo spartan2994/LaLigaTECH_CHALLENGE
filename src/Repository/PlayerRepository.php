@@ -34,19 +34,19 @@ class PlayerRepository extends ServiceEntityRepository
         return $response->getResult();
     }
 
-    public function findByPlayerClub($player_club, $player_name, $pag = false)
+    public function findByPlayerClub($id_club, $player_name, $pag = false)
     {
         $response = $this->createQueryBuilder("p")
             ->select("p.id, p.id_club ,p.name, p.salary, p.email")
             ->innerJoin(Club::class, "c")
             ->where("c.id = p.id_club");
-        if ($player_club) {
+        if ($id_club != null && $id_club != "") {
             $response
-                ->andWhere("c.name = :club_name")
-                ->setParameter("club_name", $player_club);
+                ->andWhere("p.id_club = :club_id")
+                ->setParameter("club_id", $id_club);
         }
 
-        if ($player_name) {
+        if ($player_name != null && $player_name != "") {
             $response
                 ->andWhere("p.name = :club_player")
                 ->setParameter("club_player", $player_name);
@@ -55,7 +55,6 @@ class PlayerRepository extends ServiceEntityRepository
         if ($pag) {
             $response->setFirstResult(5 * ($pag - 1))->setMaxResults($pag * 5);
         }
-
         return $response->getQuery()->getResult();
     }
 }
