@@ -9,7 +9,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use App\Service\TrainerManager;
 
 
-class NotifyService
+class NotificationService
 {
     private $em;
     private $mailerInterface;
